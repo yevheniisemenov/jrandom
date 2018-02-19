@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import me.jrandom.core.type.RandomGenerator;
+import me.jrandom.core.type.Type;
 
 public class Mapper {
   public static final Mapper EMPTY_MAPPER = Mapper.forClass(Object.class).build();
@@ -41,6 +42,11 @@ public class Mapper {
 
     public Builder addMapping(String field, RandomGenerator generator) {
       this.generatorMapping.put(field, generator);
+      return this;
+    }
+
+    public Builder addMapping(String field, Type type) {
+      this.generatorMapping.put(field, type.getRandomGenerator());
       return this;
     }
 

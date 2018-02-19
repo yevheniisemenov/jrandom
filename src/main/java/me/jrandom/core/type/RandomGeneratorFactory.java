@@ -29,6 +29,6 @@ public class RandomGeneratorFactory {
         .filter(entry -> entry.getKey().equals(field.getName()))
         .map(Map.Entry::getValue)
         .findFirst()
-        .orElseGet(() -> getGenerator(type));
+        .orElseGet(() -> getGenerator(field.getType()));
   }
 }
