@@ -8,6 +8,7 @@ import java.util.Set;
 
 import me.jrandom.core.builder.CollectionBuilder;
 import me.jrandom.core.builder.InstanceBuilder;
+import me.jrandom.core.configuration.Conf;
 import me.jrandom.core.configuration.DataGeneratorConfiguration;
 
 public class JRandom {
@@ -18,23 +19,23 @@ public class JRandom {
   }
 
   public <T> InstanceBuilder<T> getOne(Class<T> clazz) {
-    T instance = reflectionInstanceGenerator.generateInstance(clazz);
-    return new InstanceBuilder<>(instance);
+    T newInstance = reflectionInstanceGenerator.createNewInstance(clazz);
+    return new InstanceBuilder<>(newInstance);
   }
 
   public <T> CollectionBuilder<T, List<T>> getList(Class<T> clazz, int size) {
-    Collection<T> collection = reflectionInstanceGenerator.generateInstances(clazz, size);
+    Collection<T> collection = reflectionInstanceGenerator.generateEmptyInstances(clazz, size);
     return new CollectionBuilder<>(new ArrayList<>(collection));
   }
 
   public <T> CollectionBuilder<T, Set<T>> getSet(Class<T> clazz, int size) {
-    Collection<T> collection = reflectionInstanceGenerator.generateInstances(clazz, size);
+    Collection<T> collection = reflectionInstanceGenerator.generateEmptyInstances(clazz, size);
     return new CollectionBuilder<>(new HashSet<>(collection));
   }
 
-  public <T> CollectionBuilder<T, Set<T>> getCollection(Class<T> clazz, Collection<T> collection, int size) {
-    collection.addAll(reflectionInstanceGenerator.generateInstances(clazz, size));
-    return new CollectionBuilder<>(new HashSet<>(collection));
+  public <T> CollectionBuilder<T, Collection<T>> getCollection(Class<T> clazz, Collection<T> collection, int size) {
+    collection.addAll(reflectionInstanceGenerator.generateEmptyInstances(clazz, size));
+    return new CollectionBuilder<>(collection);
   }
 
   public static JRandomBuilder builder() {
@@ -55,6 +56,7 @@ public class JRandom {
     public JRandom build() {
       JRandom jRandom = new JRandom();
       jRandom.configuration = this.configuration;
+      Conf.INSTANCE.setConfiguration(configuration);
       return jRandom;
     }
   }

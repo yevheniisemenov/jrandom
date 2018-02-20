@@ -1,16 +1,14 @@
 package me.jrandom.core;
 
+import static me.jrandom.core.ReflectionAction.accessibleSafeAction;
+
 import org.apache.commons.lang3.reflect.FieldUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import me.jrandom.core.builder.CollectionBuilder;
-import me.jrandom.core.builder.InstanceBuilder;
 import me.jrandom.core.configuration.DataGeneratorConfiguration;
 import me.jrandom.core.configuration.Mapper;
 import me.jrandom.core.exception.FieldInitializationException;
@@ -27,42 +25,46 @@ public class ReflectionInstanceGenerator {
   public <T> Collection<T> generateInstances(Class<T> clazz, int size) {
     Collection<T> instances = new ArrayList<>();
     for (int i = 0; i < size; i++) {
-      instances.add(generateInstance(clazz));
+      T newInstance = createNewInstance(clazz);
+      instances.add(fillInstanceByRandomData(newInstance));
     }
     return instances;
   }
 
-  public <T> T generateInstance(Class<T> clazz) {
-    List<Field> allFieldsList = FieldUtils.getAllFieldsList(clazz);
-    T instance = createNewInstance(clazz);
-    Mapper mapper = configuration.getMapper(clazz);
+  public <T> Collection<T> generateEmptyInstances(Class<T> clazz, int size) {
+    Collection<T> instances = new ArrayList<>();
+    for (int i = 0; i < size; i++) {
+      instances.add(createNewInstance(clazz));
+    }
+    return instances;
+  }
+
+  public <T> T fillInstanceByRandomData(T instance) {
+    List<Field> allFieldsList = FieldUtils.getAllFieldsList(instance.getClass());
+    Mapper mapper = configuration.getMapper(instance.getClass());
 
     for (Field field : allFieldsList) {
-      RandomGenerator generator = randomGeneratorFactory.getGenerator(clazz, field, mapper);
-      setRandomValue(instance, field, generator);
+      setRandomValueForField(instance, mapper, field);
     }
     return instance;
   }
 
-  private <T> void setRandomValue(T instance, Field field, RandomGenerator generator) {
-    try {
-
-      boolean isFieldAccessible = field.isAccessible();
-      if (!isFieldAccessible) {
-        field.setAccessible(true);
-      }
-
-      field.set(instance, generator.generateRandom());
-
-      if (!isFieldAccessible) {
-        field.setAccessible(false);
-      }
-    } catch (IllegalAccessException ex) {
-      throw new FieldInitializationException(String.format("Can't set random data to field [%s]", field.getName()), ex);
-    }
+  public <T> void setRandomValueForField(T instance, Mapper mapper, Field field) {
+    RandomGenerator generator = randomGeneratorFactory.getGenerator(instance.getClass(), field, mapper);
+    setRandomValueForField(instance, field, generator);
   }
 
-  private <T> T createNewInstance(Class<T> clazz) {
+  private <T> void setRandomValueForField(T instance, Field field, RandomGenerator generator) {
+    accessibleSafeAction(field, () -> {
+      try {
+        field.set(instance, generator.generateRandom());
+      } catch (IllegalAccessException ex) {
+        throw new FieldInitializationException(String.format("Can't set random data to field [%s]", field.getName()), ex);
+      }
+    });
+  }
+
+  public <T> T createNewInstance(Class<T> clazz) {
     try {
       return clazz.newInstance();
     } catch (InstantiationException | IllegalAccessException ex) {
