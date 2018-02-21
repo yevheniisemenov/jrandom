@@ -1,22 +1,24 @@
 package me.jrandom.core.builder;
 
-import java.util.function.BiConsumer;
+import me.jrandom.core.builder.markertype.Setter;
+import me.jrandom.core.service.ReflectionFieldService;
+import me.jrandom.core.service.impl.ReflectionService;
 
 public class InstanceBuilder<T> {
   private T instance;
-  private BuilderCommons builderCommons = new BuilderCommons();
+  private ReflectionFieldService reflectionFieldService = new ReflectionService();
 
   public InstanceBuilder(T instance) {
     this.instance = instance;
   }
 
-  public <S> InstanceBuilder<T> set(BiConsumer<T, S> setter, S value) {
+  public <S> InstanceBuilder<T> set(Setter<T, S> setter, S value) {
     setter.accept(instance, value);
     return this;
   }
 
   public T build() {
-    builderCommons.setRandomDataToFields(instance);
+    reflectionFieldService.setRandomValueToNullFields(instance);
     return instance;
   }
 }

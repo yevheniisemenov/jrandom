@@ -1,15 +1,15 @@
 package me.jrandom.core.configuration;
 
-public enum Conf {
+public enum Configuration {
   INSTANCE;
 
   private DataGeneratorConfiguration configuration = new DataGeneratorConfiguration();
 
-  public DataGeneratorConfiguration getConfiguration() {
+  public DataGeneratorConfiguration get() {
     return configuration;
   }
 
-  public void setConfiguration(DataGeneratorConfiguration configuration) {
+  public void set(DataGeneratorConfiguration configuration) {
     this.configuration = configuration;
   }
 }

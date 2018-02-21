@@ -2,22 +2,27 @@ package me.jrandom.core.builder;
 
 import java.util.Collection;
 
+import me.jrandom.core.builder.markertype.CollectionBuildingStrategy;
+import me.jrandom.core.builder.markertype.Setter;
+import me.jrandom.core.service.ReflectionFieldService;
+import me.jrandom.core.service.impl.ReflectionService;
+
 public class CollectionBuilder<T, V extends Collection<T>> {
 
-  private V collection;
-  private BuilderCommons builderCommons = new BuilderCommons();
+  private V instanceCollection;
+  private ReflectionFieldService reflectionFieldService = new ReflectionService();
 
-  public CollectionBuilder(V collection) {
-    this.collection = collection;
+  public CollectionBuilder(V instanceCollection) {
+    this.instanceCollection = instanceCollection;
   }
 
   public <S> CollectionBuilder<T, V> set(Setter<T, S> setter, CollectionBuildingStrategy<Collection<T>, Setter<T, S>> strategy) {
-    strategy.accept(collection, setter);
+    strategy.accept(instanceCollection, setter);
     return this;
   }
 
   public V build() {
-    collection.forEach(builderCommons::setRandomDataToFields);
-    return collection;
+    instanceCollection.forEach(reflectionFieldService::setRandomValueToNullFields);
+    return instanceCollection;
   }
 }

@@ -1,4 +1,4 @@
-package me.jrandom.core.builder;
+package me.jrandom.core.builder.markertype;
 
 import java.util.function.BiConsumer;
 

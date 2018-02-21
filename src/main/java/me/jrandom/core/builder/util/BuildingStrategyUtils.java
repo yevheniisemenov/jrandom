@@ -1,10 +1,14 @@
-package me.jrandom.core.builder;
+package me.jrandom.core.builder.util;
 
 import java.util.Collection;
+
+import me.jrandom.core.builder.markertype.CollectionBuildingStrategy;
+import me.jrandom.core.builder.markertype.Setter;
 
 public final class BuildingStrategyUtils {
 
   private BuildingStrategyUtils() {
+    throw new IllegalStateException("You shouldn't create instance for util class.");
   }
 
   public static <T, S> CollectionBuildingStrategy<Collection<T>, Setter<T, S>> all(S value) {

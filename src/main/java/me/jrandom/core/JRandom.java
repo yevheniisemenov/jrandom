@@ -8,33 +8,34 @@ import java.util.Set;
 
 import me.jrandom.core.builder.CollectionBuilder;
 import me.jrandom.core.builder.InstanceBuilder;
-import me.jrandom.core.configuration.Conf;
+import me.jrandom.core.configuration.Configuration;
 import me.jrandom.core.configuration.DataGeneratorConfiguration;
+import me.jrandom.core.service.ReflectionInstanceService;
+import me.jrandom.core.service.impl.ReflectionService;
 
 public class JRandom {
-  private ReflectionInstanceGenerator reflectionInstanceGenerator = new ReflectionInstanceGenerator();
-  private DataGeneratorConfiguration configuration = new DataGeneratorConfiguration();
+  private ReflectionInstanceService reflectionInstanceService = new ReflectionService();
 
   private JRandom() {
   }
 
   public <T> InstanceBuilder<T> getOne(Class<T> clazz) {
-    T newInstance = reflectionInstanceGenerator.createNewInstance(clazz);
+    T newInstance = reflectionInstanceService.createEmptyInstance(clazz);
     return new InstanceBuilder<>(newInstance);
   }
 
   public <T> CollectionBuilder<T, List<T>> getList(Class<T> clazz, int size) {
-    Collection<T> collection = reflectionInstanceGenerator.generateEmptyInstances(clazz, size);
+    Collection<T> collection = reflectionInstanceService.createEmptyInstances(clazz, size);
     return new CollectionBuilder<>(new ArrayList<>(collection));
   }
 
   public <T> CollectionBuilder<T, Set<T>> getSet(Class<T> clazz, int size) {
-    Collection<T> collection = reflectionInstanceGenerator.generateEmptyInstances(clazz, size);
+    Collection<T> collection = reflectionInstanceService.createEmptyInstances(clazz, size);
     return new CollectionBuilder<>(new HashSet<>(collection));
   }
 
   public <T> CollectionBuilder<T, Collection<T>> getCollection(Class<T> clazz, Collection<T> collection, int size) {
-    collection.addAll(reflectionInstanceGenerator.generateEmptyInstances(clazz, size));
+    collection.addAll(reflectionInstanceService.createEmptyInstances(clazz, size));
     return new CollectionBuilder<>(collection);
   }
 
@@ -45,7 +46,7 @@ public class JRandom {
   public static final class JRandomBuilder {
     private DataGeneratorConfiguration configuration = new DataGeneratorConfiguration();
 
-    JRandomBuilder() {
+    private JRandomBuilder() {
     }
 
     public JRandomBuilder withConfiguration(DataGeneratorConfiguration configuration) {
@@ -55,8 +56,7 @@ public class JRandom {
 
     public JRandom build() {
       JRandom jRandom = new JRandom();
-      jRandom.configuration = this.configuration;
-      Conf.INSTANCE.setConfiguration(configuration);
+      Configuration.INSTANCE.set(configuration);
       return jRandom;
     }
   }
