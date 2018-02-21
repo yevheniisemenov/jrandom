@@ -9,11 +9,13 @@ import java.util.Set;
 
 import me.jrandom.core.configuration.Configuration;
 import me.jrandom.core.configuration.Mapper;
+import me.jrandom.core.type.impl.IntegerRandomGenerator;
 import me.jrandom.core.type.impl.StringRandomGenerator;
 
 public class RandomGeneratorFactory {
   private static final RandomGenerator<String> stringRandomGenerator = new StringRandomGenerator();
-  private Set<RandomGenerator> randomGenerators = new HashSet<>(Arrays.asList(stringRandomGenerator));
+  private static final RandomGenerator<Integer> integerRandomGenerator = new IntegerRandomGenerator();
+  private Set<RandomGenerator> randomGenerators = new HashSet<>(Arrays.asList(stringRandomGenerator, integerRandomGenerator));
 
   public RandomGenerator getGenerator(Class<?> clazz, Field clazzField) {
     Mapper mapper = Configuration.INSTANCE.get().getMapper(clazz);
