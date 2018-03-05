@@ -15,7 +15,7 @@ import me.jrandom.core.type.impl.StringRandomGenerator;
 public class RandomGeneratorFactory {
   private static final RandomGenerator<String> stringRandomGenerator = new StringRandomGenerator();
   private static final RandomGenerator<Integer> integerRandomGenerator = new IntegerRandomGenerator();
-  private Set<RandomGenerator> randomGenerators = new HashSet<>(Arrays.asList(stringRandomGenerator, integerRandomGenerator));
+  private Set<RandomGenerator<?>> randomGenerators = new HashSet<>(Arrays.asList(stringRandomGenerator, integerRandomGenerator));
 
   public RandomGenerator getGenerator(Class<?> clazz, Field clazzField) {
     Mapper mapper = Configuration.INSTANCE.get().getMapper(clazz);
@@ -26,11 +26,13 @@ public class RandomGeneratorFactory {
         .orElseGet(() -> getGenerator(clazzField.getType()));
   }
 
-  public RandomGenerator getGenerator(Class<?> type) {
-    Optional<RandomGenerator> compatibleGenerator = randomGenerators.stream()
+  public <T> RandomGenerator<T> getGenerator(Class<T> type) {
+    Optional<RandomGenerator<?>> compatibleGenerator = randomGenerators.stream()
         .filter(generator -> generator.getType().equals(type))
         .findFirst();
 
-    return compatibleGenerator.orElseThrow(() -> new RuntimeException("Generator not found"));
+    @SuppressWarnings("unchecked")
+    RandomGenerator<T> generator = (RandomGenerator<T>) compatibleGenerator.orElseThrow(() -> new RuntimeException("Generator not found"));
+    return generator;
   }
 }

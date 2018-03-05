@@ -1,12 +1,12 @@
 package me.jrandom.core.builder;
 
 import me.jrandom.core.builder.markertype.Setter;
-import me.jrandom.core.service.ReflectionFieldService;
-import me.jrandom.core.service.impl.ReflectionService;
+import me.jrandom.core.service.RandomService;
+import me.jrandom.core.service.impl.RandomServiceImpl;
 
 public class InstanceBuilder<T> {
-  private T instance;
-  private ReflectionFieldService reflectionFieldService = new ReflectionService();
+  private final T instance;
+  private final RandomService randomService = new RandomServiceImpl();
 
   public InstanceBuilder(T instance) {
     this.instance = instance;
@@ -17,8 +17,15 @@ public class InstanceBuilder<T> {
     return this;
   }
 
+  @SafeVarargs
+  public final <S> InstanceBuilder<T> random(Setter<T, S>... setters) {
+    for (Setter<T, S> setter : setters) {
+      randomService.setRandomValue(instance, setter);
+    }
+    return this;
+  }
+
   public T build() {
-    reflectionFieldService.setRandomValueToNullFields(instance);
     return instance;
   }
 }

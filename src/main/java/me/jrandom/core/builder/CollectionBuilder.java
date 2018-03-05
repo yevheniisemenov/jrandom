@@ -4,13 +4,13 @@ import java.util.Collection;
 
 import me.jrandom.core.builder.markertype.CollectionBuildingStrategy;
 import me.jrandom.core.builder.markertype.Setter;
-import me.jrandom.core.service.ReflectionFieldService;
-import me.jrandom.core.service.impl.ReflectionService;
+import me.jrandom.core.service.RandomService;
+import me.jrandom.core.service.impl.RandomServiceImpl;
 
 public class CollectionBuilder<T, V extends Collection<T>> {
 
-  private V instanceCollection;
-  private ReflectionFieldService reflectionFieldService = new ReflectionService();
+  private final V instanceCollection;
+  private final RandomService randomService = new RandomServiceImpl();
 
   public CollectionBuilder(V instanceCollection) {
     this.instanceCollection = instanceCollection;
@@ -21,8 +21,17 @@ public class CollectionBuilder<T, V extends Collection<T>> {
     return this;
   }
 
+  @SafeVarargs
+  public final <S> CollectionBuilder<T, V> random(Setter<T, S>... setters) {
+    for (Setter<T, S> setter : setters) {
+      for (T instance : instanceCollection) {
+        randomService.setRandomValue(instance, setter);
+      }
+    }
+    return this;
+  }
+
   public V build() {
-    instanceCollection.forEach(reflectionFieldService::setRandomValueToNullFields);
     return instanceCollection;
   }
 }

@@ -66,7 +66,8 @@ public class ReflectionService implements ReflectionInstanceService, ReflectionF
     }
   }
 
-  private <T> void setRandomValueToField(T instance, Field field) {
+  @Override
+  public  <T> void setRandomValueToField(T instance, Field field) {
     RandomGenerator generator = randomGeneratorFactory.getGenerator(instance.getClass(), field);
     try {
       FieldUtils.writeField(field, instance, generator.generateRandom(), true);
